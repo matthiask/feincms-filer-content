@@ -1,0 +1,3 @@
+recursive-include mediafiler/templates *.html
+include AUTHORS
+include LICENSE
