@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from feincms.admin.item_editor import FeinCMSInline
+
 from filer.fields.file import FilerFileField
 from filer.fields.image import FilerImageField
 
@@ -20,15 +21,11 @@ class MediaFileContentInline(FeinCMSInline):
 class ContentWithFilerFile(models.Model):
     """
     MediaFile Content for use with Django-Filer.
-
-
     """
     feincms_item_editor_inline = MediaFileContentInline
 
     class Meta:
         abstract = True
-
-
 
     def render(self, **kwargs):
         ctx = {'content': self}
@@ -38,15 +35,13 @@ class ContentWithFilerFile(models.Model):
             'content/mediafiler/%s.html' % self.type,
             'content/mediafiler/%s.html' % self.file_type,
             'content/mediafiler/default.html',
-            ], ctx, context_instance=kwargs.get('context'))
+        ], ctx, context_instance=kwargs.get('context'))
 
 
 class FileContent(ContentWithFilerFile):
-
     mediafile = FilerFileField(verbose_name=_('file'), related_name='+')
     file_type = 'file'
     type = 'download'
-
 
     class Meta:
         abstract = True
@@ -81,16 +76,6 @@ class ImageContent(ContentWithFilerFile):
     date_taken, file, id, is_public, url
     """
 
-    @classmethod
-    def initialize_type(cls, TYPE_CHOICES=None):
-        if TYPE_CHOICES is None:
-            raise ImproperlyConfigured('You have to set TYPE_CHOICES when'
-                ' creating a %s' % cls.__name__)
-
-        cls.add_to_class('type', models.CharField(_('type'),
-            max_length=20, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
-        )
-
     mediafile = FilerImageField(verbose_name=_('image'), related_name='+')
     file_type = 'image'
 
@@ -98,3 +83,20 @@ class ImageContent(ContentWithFilerFile):
         abstract = True
         verbose_name = _('image')
         verbose_name_plural = _('images')
+
+    @classmethod
+    def initialize_type(cls, TYPE_CHOICES=None):
+        if TYPE_CHOICES is None:
+            raise ImproperlyConfigured(
+                'You have to set TYPE_CHOICES when'
+                ' creating a %s' % cls.__name__)
+
+        cls.add_to_class(
+            'type',
+            models.CharField(
+                _('type'),
+                max_length=20,
+                choices=TYPE_CHOICES,
+                default=TYPE_CHOICES[0][0],
+            ),
+        )
